@@ -1,192 +1,377 @@
-//Zambitchi Alexandra 133 
 #include <iostream>
+#include <cmath>
 #include <string.h>
 #include <vector>
 using namespace std;
-#define MAX 1000
-class statie
+
+class Examen
 {
-private:
-	char strada[MAX];
-	int nr_strada;
-	int sector;
-	int nr_transp;
-	int transp[MAX];
-	static int cod_statie;
-	char nume[MAX];
+	static int nr_exam;
+	char den_materie[10];
+	float nota_partial, nota_quiz;
 public:
-	statie(char strada=NULL, int nr_strada=0, int sector=0, int nr_transp=0, int transp[]=0, char nume=NULL)
+	Examen(char denumire[], float nota_partial=0, float nota_quiz=0)
 	{
-		strcpy(this->strada, strada);
-		this->nr_strada=nr_strada;
-		this->sector=sector;
-		for(int i=0;i<(this->transp.size());i++)
-			this->transp[i]=transp[i];
-		strcpy(this->nume, nume);
-		cod_statie++;
+		strcpy(den_materie,denumire);
+		this->nota_partial=nota_partial;
+		this->nota_quiz=nota_quiz;
+		nr_exam++;
 	}
-	char *getStrada()
+	~Examen()
 	{
-		return this->strada;
+		nr_exam--;
+		strcpy(den_materie,"");
+		nota_partial=0;
+		nota_quiz=0;
 	}
-	void setStrada(char strada[MAX])
+	void setMaterie(char denumire[])
 	{
-		strcpy(this->strada,strada);
+		strcpy(this->den_materie, denumire);
 	}
-	int getNr_strada()
+	void setNota_partial(float nota_partial)
 	{
-		return this->nr_strada;
+		this->nota_partial=nota_partial;
 	}
-	void setNr_strada(int nr)
+	void setNota_quiz(float nota_quiz)
 	{
-		nr_strada=nr;
+		this->nota_quiz=nota_quiz;
 	}
-	int getSector()
+	char* getMaterie()
 	{
-		return this->sector;
+		return this->den_materie;
 	}
-	void setSector(int sect)
+	float getNota_partial()
 	{
-		sector=sect;
+		return this->nota_partial;
 	}
-	int getNr_transp()
+	float getNota_quiz()
 	{
-		return this->nr_transp;
+		return this->nota_quiz;
 	}
-	void setNr_strada(int nr)
+	static int getNr()
 	{
-		nr_transp=nr;
-	}
-	int *getTransp()
-	{
-		return this->transp;
-	}
-	static int getCod_statie()
-	{
-		return this->cod_statie;
-	}
-	char* getNume()
-	{
-		return this->nume;
-	}
-	void setNume(char nume[MAX])
-	{
-		strcpy(this->nume, nume);
+		return nr_exam;
 	}
 	virtual void afisare()
 	{
-		cout<<"Numele statiei: "<<nume<<"\n";
-		cout<<"Adresa: "<<strada<<" "<<nr_strada<<" "<<sector<<"\n";
-		cout<<"Mijloace de transport care opresc: ";
-		for(int i=0;i<nr_transp;i++)
-			cout<<transp[i]<<" ";
-		cout<<"\n";
+		float x;
+		cout<<"\nExamenul la materia: "<<den_materie<<endl;
+		cout<<"Nota la partial este "<<nota_partial<<endl;
+		if(nota_quiz!=0)
+			cout<<"A fost dat si quiz-ul si s-a obtinut punctajul: "<<nota_quiz<<endl;
+		else
+			cout<<"Nu a fost dat quiz.\n";
+		cout<<"Nota partial+quiz este: ";
+		x=nota_partial+nota_quiz;
+		if(x>5)
+			cout<<5<<endl;
+		else
+			cout<<x<<endl;
 	}
-	friend istream& operator>>(istream&, statie&);
+	friend istream& operator >>(istream&, Examen&);
+	friend ostream& operator <<(ostream&, Examen&);
+	Examen& operator =(const Examen& ex)
+	{
+		strcpy(den_materie, ex.den_materie);
+		nota_partial=ex.nota_partial;
+		nota_quiz=ex.nota_quiz;
+		return *this;
+	}
 };
 
-istream& operator>>(istream& in, statie& st)
+istream& operator >>(istream& in, Examen& ex)
 {
-	cout<<"Introduceti numele statiei: ";
-	in>>nume;
-	cout<<"Adresa statiei (strada, numar, sector; ex: Unirii 20 3): ";
-	in>>strada>>nr_strada>>sector;
-	cout<<"Numarul de mijloace de transport care opresc in aceasta statie: ";
-	in>>nr_transp;
-	cout<<"Mijloacele de transport (ex 123, 66, 1): "
-	for(int i=0;i<nr_transp;i++)
-		in>>transp[i];
+	cout<<"Materia: ";
+	in>>ex.den_materie;
+	cout<<"Nota partial (0-5): ";
+	float intrare1, intrare2;
+	int opt;
+	try
+	{
+		in>>intrare1;
+		if(intrare1<0 || intrare1>5)
+			throw intrare1;
+		ex.nota_partial=intrare1;
+	}
+	catch (float intrare1)
+	{
+		cout<<"Nota invalida.\n";
+		return in;
+	}
+	cout<<"Se doreste quiz? 1.Da 2.Nu\n";
+	in>>opt;
+	if(opt==1)
+	{
+		cout<<"Nota quiz (0-2): ";
+		try
+		{
+			in>>intrare2;
+			if(intrare2<0 || intrare2>2)
+				throw intrare2;
+			ex.nota_quiz=intrare2;
+		}
+		catch (float intrare2)
+		{
+			cout<<"Nota invalida.\n ";
+			return in;
+		}
+	}
+	
 	return in;
 }
 
-class statie_urbana: public class statie
+int Examen::nr_exam=0;
+
+class Examen_final: public Examen
 {
-private:
-	int punct_achizitie;
-	int obiective;
+	char den_materie[10];
+	float puncte, nota_scris;
+	int proiect;
 public:
-	statie_urbana(int punct_achizitie=0, int obiective=0, char strada=NULL, int nr_strada=0, int sector=0, int nr_transp, int transp[]=0, char nume=NULL): statie(char strada=NULL, int nr_strada=0, int sector=0, int nr_transp, int transp[]=0, char nume=NULL)
+	Examen_final(char denumire[10]=NULL, float puncte_bonus=0, float nota_scris=0, float partial=0, float quiz=0): Examen(denumire, partial, quiz)
 	{
-		this->punct_achizitie=punct_achizitie;
-		this->obiective=obiective;
+		puncte=puncte_bonus;
+		this->nota_scris=nota_scris;
 	}
-	int getPunct()
+	void setpct(float puncte)
 	{
-		return this->punct_achizitie;
+		this->puncte=puncte;
 	}
-	void setPunct(int info)
+	float getpct()
 	{
-		punct_achizitie=info;
+		return this->puncte;
 	}
-	int getObiective()
+	void setnota_scris(float nota_scris)
 	{
-		return this->obiective;
+		this->nota_scris=nota_scris;
 	}
-	void setPunct(int obiective)
+	float getnota_scris()
 	{
-		this->obiective=obiective;
+		return this->nota_scris;
+	}
+	void setMaterie(char denumire[])
+	{
+		strcpy(this->den_materie, denumire);
+	}
+	char* getMaterie()
+	{
+		return this->den_materie;
+	}
+	~Examen_final()
+	{
+		puncte=0;
+		strcpy(den_materie,"");
+		nota_scris=0;
+	}
+	unsigned int calcul_notafin()
+	{
+		int opt;
+		float final=Examen::getNota_partial()+nota_scris+puncte;
+		cout<<"\nSe doreste quiz? 1.Da 2.Nu\n";
+		cin>>opt;
+		if(opt==1)
+		{	
+			final=final+Examen::getNota_quiz();
+			cout<<"Nota dupa adaugarea quiz-ului: "<<final<<endl;
+		}
+		else
+			cout<<"Nota finala (fara quiz): "<<final<<endl;
+		return round(final);
 	}
 	void afisare()
 	{
-		statie::afisare();
-		if(punct_achizitie==0)
-			cout<<"Statia nu are punct de achizitionare al legitimatiilor.\n";
-		else
-			cout<<"Statia are punct de achizitionare al legitimatiilor.\n";
-		if(obiective==0)
-			cout<<"Statia nu are in apropiere obiective de interes pentru turisti.\n";
-		else
-			cout<<"Statia are in apropiere obiective de interes pentru turisti.\n";
+		float auxp, final;
+		int opt, ok=0;
+		Examen::afisare();
+		cout<<"Nota la scris este: "<<nota_scris<<endl;
+		cout<<"Punctaj proiect: "<<puncte<<endl;
+		if(Examen::getNota_partial()<2.5)
+		{
+			cout<<"Introduceti noua nota la partial: ";
+			cin>>auxp;
+			setNota_partial(auxp);
+			ok=1;
+		}
+		if(Examen::getNota_partial()>2.5 || ok==1)
+		{
+			unsigned int nota_fin=calcul_notafin();
+			if(nota_fin>=10)
+				cout<<"Nota se va rotunji la 10.\n";
+			else
+				cout<<"Nota finala este: "<<nota_fin<<endl;
+		}
+
 	}
-	friend istream& operator>>(istream&, statie_urbana&);
+	friend istream& operator >>(istream&, Examen_final&);
+	Examen_final& operator =(Examen_final& ex)
+	{
+		strcpy(den_materie, ex.den_materie);
+		puncte=ex.puncte;
+		nota_scris=ex.nota_scris;
+		return *this;
+	} 
 };
 
-istream& operator>>(istream& in, statie_urbana& su)
+istream& operator >>(istream& in, Examen_final& ex)
 {
-	in>>statie& su;
-	cout<<"Statia are punct de achizitionare? 1-da 0-nu\n";
-	in>>punct_achizitie;
-	cout<<"Statia are prin apropiere vreun obiectiv de interes? 1-da 0-nu\n";
-	in>>obiective;
+	in>>(Examen&)ex;
+	cout<<"Proiectul a fost facut?\n1.Da 2.Nu\n";
+	int opt;
+	float intrare2, intrare3;
+	in>>opt;
+	if(opt==1)
+	{
+		cout<<"Punctele din proiect (0-1): ";
+		try 
+		{
+			in>>intrare2;
+			if(intrare2 <0 || intrare2>1)
+				throw intrare2;
+			ex.puncte=intrare2;
+		}
+		catch (float intrare2)
+		{
+			cout<<"Numar de puncte invalid.\n";
+			return in;
+		}
+	}
+	else
+		ex.puncte=0;
+	cout<<"Nota la examenul scris este (0-5): ";
+	try
+	{
+		in>>intrare3;
+		if(intrare3<0 || intrare3>5)
+			throw intrare3;
+		ex.nota_scris=intrare3;
+	}
+	catch(float intrare3)
+	{
+		cout<<"Nota invalida.\n";
+		return in;
+	}
 	return in;
 }
 
-class statie_extraurbana: public class statie
+template <class T> 
+class CatalogIndividual
 {
-private:
-	int obiective;
+	static int nr_matricol;
+	int nr_examene;
+	vector<T*> examene;
 public:
-	statie_extraurbana(int obiective, char strada=NULL, int nr_strada=0, int sector=0, int nr_transp, int transp[]=0, char nume=NULL): statie(char strada=NULL, int nr_strada=0, int sector=0, int nr_transp, int transp[]=0, char nume=NULL)
+	CatalogIndividual (int nr_examene=0)
 	{
-		this->obiective=obiective;
+		this->nr_examene=nr_examene;
+		nr_matricol++;
 	}
-	int getObiective()
+	~CatalogIndividual()
 	{
-		return this->obiective;
+		int i;
+		for(i=0;i<examene.size();i++)
+			delete examene[i];
+		nr_matricol--;
 	}
-	void setPunct(int obiective)
+	CatalogIndividual(const CatalogIndividual<T> &ex)
 	{
-		this->obiective=obiective;
+		examene=ex.examene;
+		nr_matricol=ex.nr_matricol;
+		nr_examene=ex.nr_examene;
+	}
+	CatalogIndividual<T>& operator +=(T &ex)
+	{
+		examene.push_back(&ex);
+		return *this;
+	}
+	static int getNr_matricol()
+	{
+		return nr_matricol;
+	}
+	int getNr_exam()
+	{
+		return this->nr_examene;
+	}
+	void setNr_exam(int nr)
+	{
+		this->nr_examene=nr;
 	}
 	void afisare()
 	{
-		statie::afisare();
-		if(obiective==0)
-			cout<<"Statia nu are in apropiere obiective de interes pentru turisti.\n";
-		else
-			cout<<"Statia are in apropiere obiective de interes pentru turisti.\n";
+		if(Examen::getNr()!=0)
+			cout<<"Studentul cu numarul matricol "<<nr_matricol<<" are notele:\n";
+		for(int i=0;i<Examen::getNr();i++)
+			if(Examen_final *s1 = dynamic_cast<Examen_final*>(examene[i]))
+				s1->afisare();
 	}
-	friend istream& operator>>(istream&, statie_extraurbana&);
+
 };
 
-istream& operator>>(istream& in, statie_extraurbana& se)
+template <class T>
+int CatalogIndividual<T>::nr_matricol=0;
+
+template <>
+class CatalogIndividual<unsigned>
 {
-	in>>statie& se;
-	cout<<"Statia are prin apropiere vreun obiectiv de interes? 1-da 0-nu\n";
-	in>>obiective;
-	return in;
+	unsigned int suma;
+public:
+	CatalogIndividual()
+	{
+		suma=0;
+	}
+	~CatalogIndividual(){}
+	*CatalogIndividual(CatalogIndividual<unsigned> &m)
+	{
+		suma=m.suma;
+	}
+	CatalogIndividual <unsigned>& operator +=(unsigned int m)
+	{
+		suma=suma+m;
+		return *this;
+	}
+	void calcul_medie()
+	{
+		cout<<"Medii finale: "<<(unsigned int)suma/Examen::getNr()<<"\n";
+	}
+};
+
+int main()
+{
+	int t, nr;
+	cout<<"\nNumarul de examene pentru fiecare student: ";
+	cin>>nr;
+	cout<<"\n1. Introducere note.\n";
+	cout<<"2. Afisare catalog.\n";
+	cout<<"0. Iesire program.\n";
+
+	CatalogIndividual<Examen> student(nr);
+	CatalogIndividual<unsigned> Med;
+	do
+	{
+		Examen_final *Ef;
+		cout<<"Optiunea: ";
+		cin>>t;
+		switch(t)
+		{
+			case 1:
+			{
+				if(Examen::getNr()==student.getNr_exam())
+					cout<<"Nu se mai pot adauga examene.\n";
+				else
+				{
+					Ef=new Examen_final("", 0, 0, 0, 0);
+					cin>>(*Ef);
+					student += (*Ef);
+					Med += Ef->calcul_notafin();
+				}
+			}break;
+			case 2:
+			{
+				student.afisare();
+			}break;
+			case 0:
+			break;
+		}
+	}while(t==1 || t==2);
+	Med.calcul_medie();
+	return 0;
 }
-
-
-
-
